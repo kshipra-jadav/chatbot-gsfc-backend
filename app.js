@@ -11,76 +11,67 @@ dotenv.config()
 const sessionId = uuid.v4()
 const projectId = process.env.projectId
 const credentials = {
-	private_key: process.env.privateKey,
-	client_email: process.env.clientEmail,
+  private_key: process.env.privateKey,
+  client_email: process.env.clientEmail,
 }
 
 const sessionClient = new dialogflow.SessionsClient({ projectId, credentials })
 
 app.listen(port, () =>
-	console.log(`GSFC Chatbot Backend Running On :- ${port}!`),
+  console.log(`GSFC Chatbot Backend Running On :- ${port}!`),
 )
 const root = path.join("__dirname", "public")
 
 app.use(express.static("public"))
 app.use(express.json())
 app.use(
-	express.urlencoded({
-		extended: true,
-	}),
+  express.urlencoded({
+    extended: true,
+  }),
 )
 app.set("view-engine", "ejs")
 app.set("views", path.join(__dirname, "public"))
 app.use(cors())
 
 app.get("/", (req, res) => {
-	let data = {
-		query: " ",
-		answer: " ",
-	}
-	res.sendFile(__dirname + "/public/first.html")
-})
-
-app.post("/hey", (req, res) => {
-	console.log("req come")
-	console.log(req.body)
-	res.send("hey thhere")
+  console.log(`Got req from ${req.url}`)
+  res.send("hey there! the bot is alive!")
 })
 
 app.post("/get-bot-ans", async (req, res) => {
-	let query = req.body.query
+  let query = req.body.query
 
-	let answer = await getQueryAnswer(query, sessionId)
+  let answer = await getQueryAnswer(query, sessionId)
 
-	let data = {
-		query: query,
-		answer: answer[0].queryResult.fulfillmentText,
-	}
+  let data = {
+    query: query,
+    answer: answer[0].queryResult.fulfillmentText,
+  }
 
-	res.json({
-		msg: "success",
-		data: data,
-	})
+  res.json({
+    msg: "success",
+    data: data,
+  })
 })
 
 let getQueryAnswer = async (query, sessionId) => {
-	const sessionPath = sessionClient.projectAgentSessionPath(
-		projectId,
-		sessionId,
-	)
+  const sessionPath = sessionClient.projectAgentSessionPath(
+    projectId,
+    sessionId,
+  )
 
-	const request = {
-		session: sessionPath,
-		queryInput: {
-			text: {
-				text: query,
+  const request = {
+    session: sessionPath,
+    queryInput: {
+      text: {
+        text: query,
 
-				languageCode: "en-US",
-			},
-		},
-	}
+        languageCode: "en-US",
+      },
+    },
+  }
 
-	const responses = await sessionClient.detectIntent(request)
+  const responses = await sessionClient.detectIntent(request)
 
-	return responses
+  return responses
 }
