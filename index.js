@@ -17,9 +17,6 @@ const credentials = {
 
 const sessionClient = new dialogflow.SessionsClient({ projectId, credentials })
 
-app.listen(port, () =>
-  console.log(`GSFC Chatbot Backend Running On :- ${port}!`),
-)
 const root = path.join("__dirname", "public")
 
 app.use(express.static("public"))
@@ -75,3 +72,7 @@ let getQueryAnswer = async (query, sessionId) => {
 
   return responses
 }
+
+app.listen(port, () =>
+  console.log(`GSFC Chatbot Backend Running On :- ${port}!`),
+)
